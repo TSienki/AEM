@@ -6,17 +6,17 @@ def euclidean_distance(point_1, point_2):
     return np.linalg.norm(point_1 - point_2)
 
 
-def create_matrix(data_, dist_fun):
+def create_matrix(data, dist_fun):
     """
-    :param data_: positions of points
+    :param data: positions of points
     :param dist_fun: a function, which counts distance between two points
     :return: distance matrix
     """
     i, j = 0, 0
-    matrix = np.zeros((data_.shape[0], data_.shape[0]))
-    for point_1 in data_:
+    matrix = np.zeros((data.shape[0], data.shape[0]))
+    for point_1 in data:
         j = 0
-        for point_2 in data_:
+        for point_2 in data:
             distance = dist_fun(point_1, point_2)
             matrix[i][j] = distance
             j += 1

@@ -1,7 +1,8 @@
 import numpy as np
 
 
-def prim(matrix, starting_point):
+def prim(dist_matrix, starting_point):
+    matrix = np.copy(dist_matrix)
     n_vertices = matrix.shape[0]
     spanning_edges = []
 

@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import MST
+from prim import prim
+import random
 
 
 def euclidean_distance(point_1, point_2):
@@ -40,34 +42,16 @@ def read_data(f_name):
 
 def main_function():
     data = read_data("objects.data")
-    starting_points = 10
-    # np.random.seed(19680801)
-
-    starting_points_indices = np.random.choice(data.shape[0],
-                                               starting_points,
-                                               replace=False)
-    mask = np.ones(data.shape[0], dtype=bool)
-    mask[starting_points_indices] = False
-
+    starting_point = random.randint(0, len(data))
     dist_matrix = create_matrix(data, euclidean_distance)
+    result = prim(dist_matrix, starting_point)
 
-    g = MST.Graph(np.size(dist_matrix))
+    for node in result:
+        plt.plot([data[node[0]][0], data[node[1]][0]],
+                 [data[node[0]][1], data[node[1]][1]], 'k-')
 
-    print("Rozmiar: " + str(np.size(dist_matrix)))
-    print("Liczba kolumn: " + str(dist_matrix.shape[0]))
-    print("Liczba wierszy: " + str(dist_matrix.shape[1]))
-
-    for i in range(dist_matrix.shape[0]):
-        for j in range(dist_matrix.shape[1]):
-            g.add_edge(i, j, dist_matrix[i][j])
-
-    result = g.kruskal_mst()
-
-    for u, v, weight in result:
-         plt.plot([data[u].T[0], data[v].T[0]], [data[u].T[1], data[v].T[1]], 'k-')
-
-    plt.scatter(data[mask].T[0], data[mask].T[1])
-    plt.scatter(data[~mask].T[0], data[~mask].T[1], c='r')
+    plt.scatter(data.T[0], data.T[1])
+    plt.scatter(data[starting_point][0], data[starting_point][1], c='r')
     plt.xlim(-10, 260)
     plt.ylim(-10, 260)
     plt.show()

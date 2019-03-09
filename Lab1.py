@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import MST
 
 
 def euclidean_distance(point_1, point_2):
@@ -49,6 +50,21 @@ def main_function():
     mask[starting_points_indices] = False
 
     dist_matrix = create_matrix(data, euclidean_distance)
+
+    g = MST.Graph(np.size(dist_matrix))
+
+    print("Rozmiar: " + str(np.size(dist_matrix)))
+    print("Liczba kolumn: " + str(dist_matrix.shape[0]))
+    print("Liczba wierszy: " + str(dist_matrix.shape[1]))
+
+    for i in range(dist_matrix.shape[0]):
+        for j in range(dist_matrix.shape[1]):
+            g.add_edge(i, j, dist_matrix[i][j])
+
+    result = g.kruskal_mst()
+
+    for u, v, weight in result:
+         plt.plot([data[u].T[0], data[v].T[0]], [data[u].T[1], data[v].T[1]], 'k-')
 
     plt.scatter(data[mask].T[0], data[mask].T[1])
     plt.scatter(data[~mask].T[0], data[~mask].T[1], c='r')

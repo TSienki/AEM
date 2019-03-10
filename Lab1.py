@@ -35,22 +35,7 @@ def time_measure(func, args_for_func):
     :return: time in seconds
     """
     start = time.time()
-    result = func(args_for_func)
-    end = time.time()
-    return end - start, result
-
-
-def time_measure_kruskal(func, g, dist_matrix):
-    """
-    :param func:
-    :param args_for_func:
-    :return: time in seconds
-    """
-    start = time.time()
-    for i in range(dist_matrix.shape[0]):
-        for j in range(dist_matrix.shape[1]):
-            g.add_edge(i, j, dist_matrix[i][j])
-    result = func()
+    result = func(*args_for_func)
     end = time.time()
     return end - start, result
 
@@ -58,7 +43,7 @@ def time_measure_kruskal(func, g, dist_matrix):
 def create_n_trees_kruskal(data, dist_matrix, steps_for_time_measurements=1):
     times_measurements = []
     for i in range(steps_for_time_measurements):
-        measurement, result = time_measure(kruskal, dist_matrix)
+        measurement, result = time_measure(kruskal, (dist_matrix, ))
         times_measurements.append(measurement)
 
     mask = np.ones(data.shape[0], dtype=bool)

@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import kruskal
+from kruskal import kruskal
 from prim import prim, prim_n_tree_generate
 import random
 import time
@@ -35,7 +35,7 @@ def time_measure(func, args_for_func):
     :return: time in seconds
     """
     start = time.time()
-    result = func(*args_for_func)
+    result = func(args_for_func)
     end = time.time()
     return end - start, result
 
@@ -58,24 +58,16 @@ def time_measure_kruskal(func, g, dist_matrix):
 def create_n_trees_kruskal(data, dist_matrix, steps_for_time_measurements=1):
     times_measurements = []
     for i in range(steps_for_time_measurements):
-        g = kruskal.Graph(np.size(dist_matrix))
-        measurement, result = time_measure_kruskal(g.kruskal_mst, g, dist_matrix)
-        print(measurement)
-        del g
+        measurement, result = time_measure(kruskal, dist_matrix)
         times_measurements.append(measurement)
 
-    cost = count_cost(result[:len(result)-9], dist_matrix)
+    mask = np.ones(data.shape[0], dtype=bool)
+    visualise_n_trees(data, result, mask)
+    cost = count_cost(result, dist_matrix)
     print(f"Minimalne drzewo rozpinajace: {cost}")
-
     print(f"Pomiary czasu dla {steps_for_time_measurements} kroków to "
           f"min: {min(times_measurements)} sekund, max: {max(times_measurements)} sekund i "
           f"avg: {sum(times_measurements)/len(times_measurements)} sekund")
-    for u, v, weight in result[:len(result)-9]:
-         plt.plot([data[u].T[0], data[v].T[0]], [data[u].T[1], data[v].T[1]], 'k-')
-    plt.scatter(data.T[0], data.T[1])
-    plt.xlim(-10, 260)
-    plt.ylim(-10, 260)
-    plt.show()
 
 def create_one_tree_prim(data, dist_matrix, steps_for_time_measurements=1):
     times_measurements = []
@@ -159,8 +151,8 @@ def main_function():
     data = read_data("objects.data")
     dist_matrix = create_matrix(data, euclidean_distance)
     # create_one_tree_prim(data, dist_matrix, 100)
-    create_n_trees_prim(data, dist_matrix, 100)
-    # create_n_trees_kruskal(data, dist_matrix, 100)
+    # create_n_trees_prim(data, dist_matrix, 100)
+    create_n_trees_kruskal(data, dist_matrix, 100)
 
 
 if __name__ == "__main__":

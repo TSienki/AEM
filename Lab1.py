@@ -64,9 +64,7 @@ def main_function():
 
     print("Minimalne drzewo rozpinajace: " + str(cost))
 
-
     plt.scatter(data[mask].T[0], data[mask].T[1])
-    plt.scatter(data[~mask].T[0], data[~mask].T[1], c='r')
     plt.xlim(-10, 260)
     plt.ylim(-10, 260)
     plt.show()

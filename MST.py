@@ -10,7 +10,7 @@ class Graph:
     # function to add an edge to graph
     def add_edge(self, u, v, w):
         self.graph.append([u, v, w])
-        print("Dodano " + str(u) + " " + str(v) + " " + str(w))
+        # print("Dodano " + str(u) + " " + str(v) + " " + str(w))
         # A utility function to find set of an element i
 
     # (uses path compression technique)
@@ -42,7 +42,10 @@ class Graph:
     # The main function to construct MST using Kruskal's  
     # algorithm
     def kruskal_mst(self):
+        """
 
+        :rtype: object
+        """
         result = []  # This will store the resultant MST
 
         i = 0  # An index variable, used for sorted edges
@@ -67,7 +70,7 @@ class Graph:
 
             # Step 2: Pick the smallest edge and increment  
             # the index for next iteration
-            print(i)
+            # print(i)
             u, v, w = self.graph[i]
             i = i + 1
             x = self.find(parent, u)

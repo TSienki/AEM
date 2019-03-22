@@ -12,17 +12,12 @@ class Plot:
         """
         It generates basic scatter plot from points
         :param points: points to show
+        :param groups: points indices of each group
         """
-        plt.scatter(points.T[0], points.T[1])
         for group in groups:
-            first_index_in_group = group[0]
-            for index in group:
-                if index != first_index_in_group:
-                    plt.plot((points[first_index_in_group][0], points[index][0]),
-                             (points[first_index_in_group][1], points[index][1]))
+            np_group = np.array(group)
+            plt.scatter(points[np_group].T[0], points[np_group].T[1])
         plt.show()
-        # ax = self.figure.add_subplot("111")
-        # ax.scatter(points.T[0], points.T[1])
 
     def draw_lines(self, points, group):
         pass
@@ -30,7 +25,6 @@ class Plot:
     def show(self):
         pass
         # fig = self.figure
-        # print("elo")
         # fig = plt.Figure()
         # test = fig.add_subplot("111")
         # plt.scatter(np.array([0, 1, 2]), np.array([4, 5, 6]))

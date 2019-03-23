@@ -1,61 +1,52 @@
 import numpy as np
 
 
-def random_groups(data_length, clusters=20):
+def random_groups(data_length, nclusters=20):
+    """
+    :param data_length:
+    :param nclusters: number of clusters
+    :return: list of pairs cluster number and data number
+    """
     data_permutation_indices = np.random.permutation(np.linspace(0, data_length - 1, data_length, dtype=np.int))
-    grouped_data_permutation_indices = []
     i = 0
-    first_iteration = True
+    clusters = []
     for index in data_permutation_indices:
-        if i == clusters:
+        if i == nclusters:
             i = 0
-            first_iteration = False
-        if first_iteration:
-            grouped_data_permutation_indices.append([])
-        grouped_data_permutation_indices[i].append(index)
+        clusters.append([i, index])
         i += 1
-    return grouped_data_permutation_indices
+    return np.array(clusters)
 
 
-def greedy_algorithm(clusters_indices, dist_matrix, neighbourhood):
+def greedy_algorithm(clusters, dist_matrix, neighbourhood):
     # TODO: It doesn't work properly
-    costs = count_costs(clusters_indices, dist_matrix)
-    for cluster_indices in clusters_indices:
+    number_clusters = np.max(clusters[:, 0])
+    for i in range(number_clusters + 1):
         first = True
-        np_cluster_indices = np.array(cluster_indices)
-        others_clusters = np.ones(dist_matrix.shape[0])
-        others_clusters[np_cluster_indices] = 0
-        for index in np_cluster_indices:
-            print(index)
-            cost_before = count_cost_for_one_point(index, np_cluster_indices, dist_matrix)
-            cluster_without_current_point = np_cluster_indices[np_cluster_indices != index]
-            if not first:
-                dist_from_point = dist_matrix[index]
-                neighbourhood_indices = np.argwhere((others_clusters == 1) & (dist_from_point < neighbourhood))
+        cluster_indices = clusters[clusters[:, 0] == i][:, 1]
+        is_other_cluster = np.ones(dist_matrix.shape[0])
+        is_other_cluster[cluster_indices] = 0
+        costs = np.sum(count_costs(clusters, dist_matrix, number_clusters))
 
+        for point_index in cluster_indices:
+            if not first:
+                dist_from_point = dist_matrix[point_index]
+                neighbourhood_indices = np.argwhere((is_other_cluster == 1) &
+                                                    (dist_from_point < neighbourhood)).reshape(-1)
                 for neighbourhood_index in neighbourhood_indices:
-                    new_cost = count_cost_for_one_point(neighbourhood_index,
-                                                        cluster_without_current_point,
-                                                        dist_matrix)
-                    if new_cost < cost_before:
-                        change_cluster(index, neighbourhood_index, clusters_indices)
-                        break
+                    if count_delta_cost(i, point_index, neighbourhood_index, clusters, dist_matrix):
+                        print(f"Change {point_index} to {point_index}")
             else:
                 first = False
     print(costs)
 
 
-def change_cluster(first_index, second_index, clusters):
-    for cluster in clusters:
-        for i, index in enumerate(cluster):
-            if first_index == index:
-                cluster.pop(i)
-                cluster.append(i)
-                break
-            if second_index == index:
-                cluster.pop(i)
-                cluster.append(i)
-                break
+def change_cluster(first_index, second_index, dist_matrix):
+    first_row = dist_matrix[first_index]
+    second_row = dist_matrix[second_index]
+
+    dist_matrix[first_index] = second_row
+    dist_matrix[second_index] = first_row
 
 
 def steepest_algorithm(cluster_indices, dist_matrix):
@@ -68,11 +59,26 @@ def find_neighbourhood_indices():
     raise NotImplementedError
 
 
-def count_costs(clusters_indices, dist_matrix):
+def count_delta_cost(first_point_cluster, first_point, second_point, clusters, dist_matrix):
+    first_cluster_indices = clusters[clusters[:, 0] == first_point_cluster][:, 1]
+    second_point_cluster = clusters[clusters[:, 1] == second_point][0, 0]
+    second_cluster_indices = clusters[clusters[:, 0] == second_point_cluster][:, 1]
+    cost_before_change = (count_cost_for_group(first_cluster_indices, dist_matrix) +
+                          count_cost_for_group(second_cluster_indices, dist_matrix))
+    first_cluster_indices[first_cluster_indices == first_point] = second_point
+    second_cluster_indices[second_cluster_indices == second_point] = first_point
+    cost_after_change = (count_cost_for_group(first_cluster_indices, dist_matrix) +
+                         count_cost_for_group(second_cluster_indices, dist_matrix))
+    return cost_after_change - cost_before_change
+
+
+def count_costs(clusters, dist_matrix, number_clusters=None):
     costs = []
-    for cluster in clusters_indices:
-        cluster_np = np.array(cluster)
-        costs.append(count_cost_for_group(cluster_np, dist_matrix))
+    if number_clusters == None:
+        number_clusters = np.max(clusters[:, 0])
+    for i in range(number_clusters + 1):
+        cluster = clusters[clusters[:, 0] == i][:, 1]
+        costs.append(count_cost_for_group(cluster, dist_matrix))
     return costs
 
 

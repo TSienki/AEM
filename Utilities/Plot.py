@@ -6,10 +6,11 @@ def draw_scatter(points, clusters):
     """
     It generates basic scatter plot from points
     :param points: points to show
-    :param clusters: points indices of each cluster
+    :param clusters: list of pairs cluster number and data number
     """
-    for cluster in clusters:
-        np_group = np.array(cluster)
+    number_clusters = np.max(clusters[:, 0])
+    for i in range(number_clusters + 1):
+        np_group = clusters[clusters[:, 0] == i]
         # for indices_1 in cluster:
         #     if indices_1 != cluster[0]:
         #         plt.plot((points[cluster[0]][0], points[indices_1][0]),

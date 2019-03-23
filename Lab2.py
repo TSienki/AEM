@@ -5,10 +5,11 @@ from Algorithms.lab2 import random_groups, greedy_algorithm
 
 
 def run():
-    neighbourhood = 10 #radius of neighbourhood
+    neighbourhood = 50 #radius of neighbourhood
     data = parse_data("data/objects20_06.data")
     dist_matrix = create_dist_function(data, lambda x1, x2: np.linalg.norm(x1 - x2))
     clusters = random_groups(data.shape[0])
+    draw_scatter(data, clusters)
     greedy_algorithm(clusters, dist_matrix, neighbourhood)
     draw_scatter(data, clusters)
 

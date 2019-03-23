@@ -8,15 +8,10 @@ def draw_scatter(points, clusters):
     :param points: points to show
     :param clusters: list of pairs cluster number and data number
     """
-    number_clusters = np.max(clusters[:, 0])
+    number_clusters = np.max(clusters)
     for i in range(number_clusters + 1):
-        np_group = clusters[clusters[:, 0] == i]
-        # for indices_1 in cluster:
-        #     if indices_1 != cluster[0]:
-        #         plt.plot((points[cluster[0]][0], points[indices_1][0]),
-        #                  (points[cluster[0]][1], points[indices_1][1]))
+        np_group = np.argwhere(clusters == i)
         plt.scatter(points[np_group].T[0], points[np_group].T[1])
-        # One color one cluster
     plt.show()
 
 

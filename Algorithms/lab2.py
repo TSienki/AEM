@@ -22,7 +22,7 @@ def greedy_algorithm(clusters, dist_matrix, neighbourhood):
     number_clusters = np.max(clusters)
     cost_before = np.sum(count_costs(clusters, dist_matrix, number_clusters))
     for j in range(100):
-        # TODO implement stop criterion insted of this loop
+        # TODO implement stop criterion instead of this loop
         for i in range(number_clusters + 1):
             is_first = True
             cluster_indices = np.argwhere(clusters == i)

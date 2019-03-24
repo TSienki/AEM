@@ -21,8 +21,8 @@ def random_groups(data_length, nclusters=20):
 def greedy_algorithm(clusters, dist_matrix, neighbourhood):
     number_clusters = np.max(clusters)
     cost_before = np.sum(count_costs(clusters, dist_matrix, number_clusters))
-    for j in range(100):
-        # TODO implement stop criterion instead of this loop
+    while True:
+        changes = 0
         for i in range(number_clusters + 1):
             is_first = True
             cluster_indices = np.argwhere(clusters == i)
@@ -45,9 +45,12 @@ def greedy_algorithm(clusters, dist_matrix, neighbourhood):
                             temp = clusters[point_index]
                             clusters[point_index] = clusters[neighbourhood_index]
                             clusters[neighbourhood_index] = temp
+                            changes += 1
                             break
+        if changes == 0:
+            break
     cost_after = np.sum(count_costs(clusters, dist_matrix, number_clusters))
-    print(cost_before - cost_before, cost_after, cost_before)
+    return cost_after
 
 
 def change_cluster(first_index, second_index, dist_matrix):

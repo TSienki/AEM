@@ -53,8 +53,6 @@ def run_algorithm(clusters, dist_matrix, neighbourhood, algorithm="greedy"):
                             changes += 1
                     else:
                         raise AssertionError("algorithm variable should be 'greedy' or 'steepest'")
-
-        # print(changes)
         if changes == 0:
             break
 

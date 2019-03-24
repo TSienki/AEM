@@ -52,7 +52,6 @@ def prim_n_tree_generate(dist_matrix, starting_points):
     matrix[diag_indices, diag_indices] = np.inf
     while num_visited != n_vertices:
         new_edge = np.argmin(matrix[visited_vertices], axis=None)
-
         new_edge = divmod(new_edge, n_vertices)
         new_edge = [visited_vertices[new_edge[0]], new_edge[1]]
 

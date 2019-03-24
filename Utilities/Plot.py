@@ -2,13 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.cm as cm
 
+
 def draw_scatter(points, clusters, with_lines):
     """
     It generates basic scatter plot from points
     :param points: points to show
     :param clusters: list of pairs cluster number and data number
     """
-
     number_clusters = np.max(clusters)
     colors = cm.rainbow(np.linspace(0, 1, number_clusters+1))
     for i in range(number_clusters + 1):

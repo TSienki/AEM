@@ -95,8 +95,6 @@ def create_n_trees_prim(data, dist_matrix, no_groups=20, steps_for_time_measurem
         elif cur_cost > max_cost:
             max_cost = cur_cost
 
-
-
     # visualise_n_trees(data, best_result, mask)
 
     # print(f"Minimalne drzewo rozpinajace: {cost}")
@@ -106,6 +104,7 @@ def create_n_trees_prim(data, dist_matrix, no_groups=20, steps_for_time_measurem
     #       f"min: {min(times_measurements)} sekund, max: {max(times_measurements)} sekund i "
     #       f"avg: {sum(times_measurements)/len(times_measurements)} sekund")
     return result
+
 
 def visualise_tree(points, nodes, starting_point):
     for node in nodes:

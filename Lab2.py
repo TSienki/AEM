@@ -33,7 +33,6 @@ def run_measurements(data, dist_matrix, neighbourhood, steps_for_time_measuremen
     clusters_before_greedy = []
     clusters_before_steepest = []
 
-
     for i in range(steps_for_time_measurements):
         clusters = np.ones(len(data), dtype=np.int32) * (-1)
         if option == "prim":

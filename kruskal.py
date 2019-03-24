@@ -50,7 +50,6 @@ def kruskal(dist_matrix, no_groups):
         if x != y:
             spanning_edges.append([u, v, w])
             union(parent, rank, x, y)
-
     # return all but 19 longest edges
     for index, edge in enumerate(spanning_edges):
         spanning_edges[index] = edge[:-1]

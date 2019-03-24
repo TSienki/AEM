@@ -73,6 +73,5 @@ def create_clusters_from_tree(data, result):
         if item == -1:
             clusters_number = np.max(clusters)
             clusters[i] = clusters_number+1
-
     return clusters
 

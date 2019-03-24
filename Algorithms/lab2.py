@@ -25,7 +25,7 @@ def run_algorithm(clusters, dist_matrix, neighbourhood, algorithm="greedy"):
     :param neighbourhood:
     :param algorithm: greedy or steepest
     """
-    while True:
+    for _ in range(100): # it prevents situation if steepest algorithm will be stuck
         changes = 0
         for i in range(np.max(clusters) + 1):
             is_first = True

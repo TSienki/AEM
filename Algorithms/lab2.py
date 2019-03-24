@@ -25,7 +25,7 @@ def run_algorithm(clusters, dist_matrix, neighbourhood, algorithm="greedy"):
     :param neighbourhood:
     :param algorithm: greedy or steepest
     """
-    for _ in range(100): # it prevents situation if steepest algorithm will be stuck
+    for _ in range(10): # it prevents situation if steepest algorithm will be stuck
         changes = 0
         for i in range(np.max(clusters) + 1):
             is_first = True
@@ -54,7 +54,7 @@ def run_algorithm(clusters, dist_matrix, neighbourhood, algorithm="greedy"):
                     else:
                         raise AssertionError("algorithm variable should be 'greedy' or 'steepest'")
 
-        print(changes)
+        # print(changes)
         if changes == 0:
             break
 
@@ -125,6 +125,10 @@ def count_cost_for_group(cluster_points, dist_matrix):
     cost = 0
     for point in cluster_points:
         cost += count_cost_for_one_point(point, cluster_points, dist_matrix)
+    if len(cluster_points) == 0:
+        cost = 0
+    else:
+        cost = cost/cluster_points.shape[0]
     return cost
 
 

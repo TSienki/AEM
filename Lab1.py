@@ -40,55 +40,72 @@ def time_measure(func, args_for_func):
     return end - start, result
 
 
-def create_n_trees_kruskal(data, dist_matrix, steps_for_time_measurements=1):
+def create_n_trees_kruskal(data, dist_matrix, no_groups = 20, steps_for_time_measurements=1):
     times_measurements = []
     for i in range(steps_for_time_measurements):
-        measurement, result = time_measure(kruskal, (dist_matrix, ))
+        measurement, result = time_measure(kruskal, (dist_matrix, no_groups))
         times_measurements.append(measurement)
 
     mask = np.ones(data.shape[0], dtype=bool)
-    visualise_n_trees(data, result, mask)
-    cost = count_cost(result, dist_matrix)
-    print(f"Minimalne drzewo rozpinajace: {cost}")
-    print(f"Pomiary czasu dla {steps_for_time_measurements} kroków to "
-          f"min: {min(times_measurements)} sekund, max: {max(times_measurements)} sekund i "
-          f"avg: {sum(times_measurements)/len(times_measurements)} sekund")
+    # visualise_n_trees(data, result, mask)
+    # cost = count_cost(result, dist_matrix)
+    # print(f"Minimalne drzewo rozpinajace: {cost}")
+    # print(f"Pomiary czasu dla {steps_for_time_measurements} kroków to "
+    #       f"min: {min(times_measurements)} sekund, max: {max(times_measurements)} sekund i "
+    #       f"avg: {sum(times_measurements)/len(times_measurements)} sekund")
+    return result
+
 
 def create_one_tree_prim(data, dist_matrix, steps_for_time_measurements=1):
     times_measurements = []
+    cost = 0
     for i in range(steps_for_time_measurements):
         starting_point = random.randint(0, len(data) - 1)
         measurement, result = time_measure(prim, (dist_matrix, starting_point))
         times_measurements.append(measurement)
-
-    visualise_tree(data, result, starting_point)
     cost = count_cost(result, dist_matrix)
+    # visualise_tree(data, result, starting_point)
     print(f"Minimalne drzewo rozpinajace: {cost}")
     print(f"Pomiary czasu dla {steps_for_time_measurements} kroków to "
           f"min: {min(times_measurements)} sekund, max: {max(times_measurements)} sekund i "
           f"avg: {sum(times_measurements)/len(times_measurements)} sekund")
+    return result
 
 
-def create_n_trees_prim(data, dist_matrix, steps_for_time_measurements=1):
+def create_n_trees_prim(data, dist_matrix, no_groups=20, steps_for_time_measurements=1):
     times_measurements = []
+    best_result = []
+    avg = 0
+    cost = 2240
+    max_cost = 0
     for i in range(steps_for_time_measurements):
         starting_points_indices = np.random.choice(data.shape[0],
-                                                   10,
+                                                   no_groups,
                                                    replace=False)
         starting_points_indices = np.sort(starting_points_indices)
         mask = np.ones(data.shape[0], dtype=bool)
         mask[starting_points_indices] = False
         measurement, result = time_measure(prim_n_tree_generate, (dist_matrix, starting_points_indices))
         times_measurements.append(measurement)
+        cur_cost = count_cost(result, dist_matrix)
+        avg = (avg + cur_cost) / 2.0
+        if cur_cost < cost:
+            cost = cur_cost
+            best_result = result
+        elif cur_cost > max_cost:
+            max_cost = cur_cost
 
-    visualise_n_trees(data, result, mask)
 
-    cost = count_cost(result, dist_matrix)
-    print(f"Minimalne drzewo rozpinajace: {cost}")
-    print(f"Pomiary czasu dla {steps_for_time_measurements} kroków to "
-          f"min: {min(times_measurements)} sekund, max: {max(times_measurements)} sekund i "
-          f"avg: {sum(times_measurements)/len(times_measurements)} sekund")
 
+    # visualise_n_trees(data, best_result, mask)
+
+    # print(f"Minimalne drzewo rozpinajace: {cost}")
+    # print(f"Średnia wartość funkcji celu:  + {avg}")
+    # print(f"Maksymalne drzewo rozpinajace: + {max_cost}")
+    # print(f"Pomiary czasu dla {steps_for_time_measurements} kroków to "
+    #       f"min: {min(times_measurements)} sekund, max: {max(times_measurements)} sekund i "
+    #       f"avg: {sum(times_measurements)/len(times_measurements)} sekund")
+    return result
 
 def visualise_tree(points, nodes, starting_point):
     for node in nodes:
@@ -135,9 +152,9 @@ def read_data(f_name):
 def main_function():
     data = read_data("objects.data")
     dist_matrix = create_matrix(data, euclidean_distance)
-    # create_one_tree_prim(data, dist_matrix, 100)
-    # create_n_trees_prim(data, dist_matrix, 100)
-    create_n_trees_kruskal(data, dist_matrix, 100)
+    # result = create_one_tree_prim(data, dist_matrix, 100)
+    # result = create_n_trees_prim(data, dist_matrix, 20, 100)
+    result = create_n_trees_kruskal(data, dist_matrix, 20, 100)
 
 
 if __name__ == "__main__":

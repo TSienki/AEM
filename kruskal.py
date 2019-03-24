@@ -19,7 +19,7 @@ def union(parent, rank, x, y):
         rank[xroot] += 1
 
 
-def kruskal(dist_matrix):
+def kruskal(dist_matrix, no_groups):
     n_vertices = dist_matrix.size
     graph = []
     spanning_edges = []
@@ -51,5 +51,7 @@ def kruskal(dist_matrix):
             spanning_edges.append([u, v, w])
             union(parent, rank, x, y)
 
-    # return all but 9 longest edges
-    return spanning_edges[:len(spanning_edges)-9]
+    # return all but 19 longest edges
+    for index, edge in enumerate(spanning_edges):
+        spanning_edges[index] = edge[:-1]
+    return spanning_edges[:len(spanning_edges)-(no_groups-1)]

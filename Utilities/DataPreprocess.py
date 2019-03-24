@@ -36,3 +36,43 @@ def create_dist_function(data, dist_fun):
         i += 1
     return matrix
 
+
+def create_clusters_from_tree(data, result):
+    clusters = np.ones(len(data), dtype=np.int32) * (-1)
+    result_tree = np.copy(result)
+
+# dividing points from list of edges to clusters. Each edge consists of indexes of two points it connects.
+    out = []
+    while len(result_tree) > 0:
+        first, *rest = result_tree
+        first = set(first)
+
+        lf = -1
+        while len(first) > lf:
+            lf = len(first)
+
+            rest2 = []
+            for r in rest:
+                if len(first.intersection(set(r))) > 0:
+                    first |= set(r)
+                else:
+                    rest2.append(r)
+            rest = rest2
+
+        out.append(first)
+        result_tree = rest
+
+# assigning each point a number of group it belongs to
+    for index, cl in enumerate(out):
+        for i, edge in enumerate(data):
+            if i in cl:
+                clusters[i] = index
+
+# single-point clusters where not taken into account so far - they also need to be assigned a group number
+    for i, item in enumerate(clusters):
+        if item == -1:
+            clusters_number = np.max(clusters)
+            clusters[i] = clusters_number+1
+
+    return clusters
+

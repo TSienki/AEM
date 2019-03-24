@@ -18,12 +18,16 @@ def random_groups(data_length, nclusters=20):
     return clusters
 
 
-def greedy_algorithm(clusters, dist_matrix, neighbourhood):
-    number_clusters = np.max(clusters)
-    cost_before = np.sum(count_costs(clusters, dist_matrix, number_clusters))
+def run_algorithm(clusters, dist_matrix, neighbourhood, algorithm="greedy"):
+    """
+    :param clusters:
+    :param dist_matrix:
+    :param neighbourhood:
+    :param algorithm: greedy or steepest
+    """
     while True:
         changes = 0
-        for i in range(number_clusters + 1):
+        for i in range(np.max(clusters) + 1):
             is_first = True
             cluster_indices = np.argwhere(clusters == i)
 
@@ -39,18 +43,20 @@ def greedy_algorithm(clusters, dist_matrix, neighbourhood):
                     neighbourhood_indices = np.argwhere((is_other_cluster == 1) &
                                                         (dist_from_point < neighbourhood))
 
-                    for neighbourhood_index in neighbourhood_indices:
-                        before, after = count_delta_cost(point_index, neighbourhood_index, clusters, dist_matrix)
-                        if before > after:
-                            temp = clusters[point_index]
-                            clusters[point_index] = clusters[neighbourhood_index]
-                            clusters[neighbourhood_index] = temp
+                    if algorithm == "greedy":
+                        change = greedy_algorithm(neighbourhood_indices, point_index, clusters, dist_matrix)
+                        if change:
                             changes += 1
-                            break
+                    elif algorithm == "steepest":
+                        change = steepest_algorithm(neighbourhood_indices, point_index, clusters, dist_matrix)
+                        if change:
+                            changes += 1
+                    else:
+                        raise AssertionError("algorithm variable should be 'greedy' or 'steepest'")
+
+        print(changes)
         if changes == 0:
             break
-    cost_after = np.sum(count_costs(clusters, dist_matrix, number_clusters))
-    return cost_after
 
 
 def change_cluster(first_index, second_index, dist_matrix):
@@ -61,10 +67,33 @@ def change_cluster(first_index, second_index, dist_matrix):
     dist_matrix[second_index] = first_row
 
 
-def steepest_algorithm(cluster_indices, dist_matrix):
-    # TODO: Implement it
-    raise NotImplementedError
+def greedy_algorithm(neighbourhood_indices, point_index, clusters, dist_matrix):
+    for neighbourhood_index in neighbourhood_indices:
+        before, after = count_delta_cost(point_index, neighbourhood_index, clusters, dist_matrix)
+        if before > after:
+            change_point_in_clusters(clusters, point_index, neighbourhood_index)
+            return True
+    return False
 
+
+def steepest_algorithm(neighbourhood_indices, point_index, clusters, dist_matrix):
+    smallest_after = np.inf
+    smallest_neighbour = -1
+    for neighbourhood_index in neighbourhood_indices:
+        before, after = count_delta_cost(point_index, neighbourhood_index, clusters, dist_matrix)
+        if before > after and smallest_after > after:
+            smallest_neighbour = neighbourhood_index
+            smallest_after = after
+    if smallest_neighbour > -1:
+        change_point_in_clusters(clusters, point_index, smallest_neighbour)
+        return True
+    return False
+
+
+def change_point_in_clusters(clusters, point_1, point_2):
+    temp = clusters[point_1]
+    clusters[point_1] = clusters[point_2]
+    clusters[point_2] = temp
 
 def count_delta_cost(first_point, second_point, clusters, dist_matrix):
     #It is defined as difference between cost before change and potential cost after change.

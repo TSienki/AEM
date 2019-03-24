@@ -66,11 +66,6 @@ def steepest_algorithm(cluster_indices, dist_matrix):
     raise NotImplementedError
 
 
-def find_neighbourhood_indices():
-    # TODO: Implement it
-    raise NotImplementedError
-
-
 def count_delta_cost(first_point, second_point, clusters, dist_matrix):
     #It is defined as difference between cost before change and potential cost after change.
     first_cluster = clusters[first_point]

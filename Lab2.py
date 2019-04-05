@@ -81,12 +81,12 @@ def run_measurements(data, dist_matrix, neighbourhood, steps_for_time_measuremen
 
 
 def run():
-    neighbourhood = 50  #radius of neighbourhood
+    neighbourhood = 40  #radius of neighbourhood
     data = parse_data("data/objects20_06.data")
     dist_matrix = create_dist_function(data, lambda x1, x2: np.linalg.norm(x1 - x2))
-    run_measurements(data, dist_matrix, neighbourhood, 100, "prim")
-    run_measurements(data, dist_matrix, neighbourhood, 100, "kruskal")
-    run_measurements(data, dist_matrix, neighbourhood, 100, "random")
+    # run_measurements(data, dist_matrix, neighbourhood, 100, "prim")
+    # run_measurements(data, dist_matrix, neighbourhood, 100, "kruskal")
+    run_measurements(data, dist_matrix, neighbourhood, 1, "random")
 
 
 if "__main__" == __name__:

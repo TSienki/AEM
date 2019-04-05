@@ -18,13 +18,16 @@ def random_groups(data_length, nclusters=20):
     return clusters
 
 
-def run_algorithm(clusters, dist_matrix, neighbourhood, algorithm="greedy"):
+def run_algorithm(clusters, dist_matrix, neighbourhood, additional_method="none"):
     """
     :param clusters:
     :param dist_matrix:
     :param neighbourhood:
-    :param algorithm: greedy or steepest
+    :param additional_method:
     """
+    old_costs_cashed = None
+    if additional_method == "cache":
+        old_costs_cashed = np.full(clusters.shape, -1)
     for _ in range(15): # it prevents situation if steepest algorithm will be stuck
         changes = 0
         for i in range(np.max(clusters) + 1):
@@ -40,19 +43,17 @@ def run_algorithm(clusters, dist_matrix, neighbourhood, algorithm="greedy"):
                     is_first = False
                 else:
                     dist_from_point = dist_matrix[point_index].reshape(-1)
-                    neighbourhood_indices = np.argwhere((is_other_cluster == 1) &
-                                                        (dist_from_point < neighbourhood))
+                    neighbourhood_indices = np.argwhere((is_other_cluster == 1) & (dist_from_point < neighbourhood))
 
-                    if algorithm == "greedy":
-                        change = greedy_algorithm(neighbourhood_indices, point_index, clusters, dist_matrix)
-                        if change:
-                            changes += 1
-                    elif algorithm == "steepest":
-                        change = steepest_algorithm(neighbourhood_indices, point_index, clusters, dist_matrix)
-                        if change:
-                            changes += 1
-                    else:
-                        raise AssertionError("algorithm variable should be 'greedy' or 'steepest'")
+                    change = greedy_algorithm(neighbourhood_indices,
+                                              point_index,
+                                              clusters,
+                                              dist_matrix,
+                                              old_costs_cashed,
+                                              additional_method)
+                    if change:
+                        changes += 1
+
         print(changes)
         if changes == 0:
             break
@@ -66,26 +67,44 @@ def change_cluster(first_index, second_index, dist_matrix):
     dist_matrix[second_index] = first_row
 
 
-def greedy_algorithm(neighbourhood_indices, point_index, clusters, dist_matrix):
+def greedy_algorithm(neighbourhood_indices, point_index, clusters, dist_matrix, old_costs_cashed, additional_method):
     for neighbourhood_index in neighbourhood_indices:
-        before, after = count_delta_cost(point_index, neighbourhood_index, clusters, dist_matrix)
-        if before > after:
-            change_point_in_clusters(clusters, point_index, neighbourhood_index)
-            return True
-    return False
+        if additional_method == "cache":
+            first_cluster = clusters[point_index]
+            first_cluster_indices = np.argwhere(clusters == first_cluster)
+            second_cluster = clusters[neighbourhood_index]
+            second_cluster_indices = np.argwhere(clusters == second_cluster)
 
+            after_first_cluster_indices = first_cluster_indices[first_cluster_indices != first_cluster]
+            after_second_cluster_indices = second_cluster_indices[second_cluster_indices != second_cluster]
+            if old_costs_cashed[point_index] == -1:
+                first_point_cost_before = count_cost_for_one_point(point_index, first_cluster_indices, dist_matrix)
+                old_costs_cashed[point_index] = first_point_cost_before
+            else:
+                first_point_cost_before = old_costs_cashed[point_index]
 
-def steepest_algorithm(neighbourhood_indices, point_index, clusters, dist_matrix):
-    smallest_after = np.inf
-    smallest_neighbour = -1
-    for neighbourhood_index in neighbourhood_indices:
-        before, after = count_delta_cost(point_index, neighbourhood_index, clusters, dist_matrix)
-        if before > after and smallest_after > after:
-            smallest_neighbour = neighbourhood_index
-            smallest_after = after
-    if smallest_neighbour > -1:
-        change_point_in_clusters(clusters, point_index, smallest_neighbour)
-        return True
+            if old_costs_cashed[neighbourhood_index] == -1:
+                neighbourhood_cost_before = count_cost_for_one_point(neighbourhood_index, second_cluster_indices, dist_matrix)
+                old_costs_cashed[neighbourhood_index] = neighbourhood_cost_before
+            else:
+                neighbourhood_cost_before = old_costs_cashed[neighbourhood_index]
+
+            cost_before_change = (first_point_cost_before + neighbourhood_cost_before)
+
+            neighbourhood_cost_after = count_cost_for_one_point(neighbourhood_index, after_first_cluster_indices, dist_matrix)
+            first_point_cost_after = count_cost_for_one_point(point_index, after_second_cluster_indices, dist_matrix)
+            cost_after_change = neighbourhood_cost_after + first_point_cost_after
+
+            if cost_before_change > cost_after_change:
+                old_costs_cashed[point_index] = first_point_cost_after
+                old_costs_cashed[neighbourhood_index] = neighbourhood_cost_after
+                change_point_in_clusters(clusters, point_index, neighbourhood_index)
+                return True
+        else:
+            before, after = count_delta_cost(point_index, neighbourhood_index, clusters, dist_matrix)
+            if before > after:
+                change_point_in_clusters(clusters, point_index, neighbourhood_index)
+                return True
     return False
 
 
@@ -93,6 +112,7 @@ def change_point_in_clusters(clusters, point_1, point_2):
     temp = clusters[point_1]
     clusters[point_1] = clusters[point_2]
     clusters[point_2] = temp
+
 
 def count_delta_cost(first_point, second_point, clusters, dist_matrix):
     #It is defined as difference between cost before change and potential cost after change.

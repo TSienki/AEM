@@ -19,13 +19,13 @@ def time_measure(func, args_for_func):
     return end - start
 
 
-def run_measurements(data, dist_matrix, neighbourhood, steps_for_time_measurements=1):
+def run_measurements(data, dist_matrix, neighbourhood, steps_for_time_measurements=1, method="none"):
     dist_1 = np.copy(dist_matrix)
     costs_greedy = []
     times_measurements = []
     clusters = None
     # draw_scatter(data, clusters, False)
-
+    np.random.seed(0)
     for i in range(steps_for_time_measurements):
         clusters = random_groups(data.shape[0])
         measurement = time_measure(run_algorithm, (clusters, dist_1, neighbourhood, "cache"))
@@ -47,7 +47,8 @@ def run():
     neighbourhood = 50  #radius of neighbourhood
     data = parse_data("data/objects20_06.data")
     dist_matrix = create_dist_function(data, lambda x1, x2: np.linalg.norm(x1 - x2))
-    run_measurements(data, dist_matrix, neighbourhood, 10)
+    run_measurements(data, dist_matrix, neighbourhood, 1, method="none")
+    run_measurements(data, dist_matrix, neighbourhood, 1, method="cache")
 
 
 if "__main__" == __name__:

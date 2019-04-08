@@ -7,7 +7,7 @@ def random_groups(data_length, nclusters=20):
     :param nclusters: number of clusters
     :return: list of pairs cluster number and data number
     """
-    np.random.seed(0)
+
     data_permutation_indices = np.random.permutation(np.linspace(0, data_length - 1, data_length, dtype=np.int))
     i = 0
     clusters = np.ones(data_length, dtype=np.int32) * (-1)

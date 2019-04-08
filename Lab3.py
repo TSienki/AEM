@@ -27,6 +27,7 @@ def run_measurements(data, dist_matrix, neighbourhood, steps_for_time_measuremen
     best_clusters = []
     clusters = None
     # draw_scatter(data, clusters, False)
+    np.random.seed(0)
     for i in range(steps_for_time_measurements):
         clusters = random_groups(data.shape[0])
         measurement = time_measure(run_algorithm, (clusters, dist_1, neighbourhood, method))
@@ -51,10 +52,10 @@ def run():
     neighbourhood = 50  #radius of neighbourhood
     data = parse_data("data/objects20_06.data")
     dist_matrix = create_dist_function(data, lambda x1, x2: np.linalg.norm(x1 - x2))
-    run_measurements(data, dist_matrix, neighbourhood, 1, method="none")
-    run_measurements(data, dist_matrix, neighbourhood, 1, method="cache")
-    run_measurements(data, dist_matrix, neighbourhood, 1, method="candidates")
-    run_measurements(data, dist_matrix, neighbourhood, 1, method="candidates_with_cache")
+    run_measurements(data, dist_matrix, neighbourhood, 100, method="none")
+    run_measurements(data, dist_matrix, neighbourhood, 100, method="cache")
+    run_measurements(data, dist_matrix, neighbourhood, 100, method="candidates")
+    run_measurements(data, dist_matrix, neighbourhood, 100, method="candidates_with_cache")
 
 
 

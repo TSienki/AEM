@@ -53,7 +53,7 @@ def run_algorithm(clusters, dist_matrix, neighbourhood, algorithm="greedy"):
                             changes += 1
                     else:
                         raise AssertionError("algorithm variable should be 'greedy' or 'steepest'")
-        print(changes)
+        # print(changes)
         if changes == 0:
             break
 
@@ -83,7 +83,7 @@ def steepest_algorithm(neighbourhood_indices, point_index, clusters, dist_matrix
         if before > after and smallest_after > after:
             smallest_neighbour = neighbourhood_index
             smallest_after = after
-    if smallest_neighbour > -1:
+    if smallest_neighbour != -1:
         change_point_in_clusters(clusters, point_index, smallest_neighbour)
         return True
     return False
@@ -124,10 +124,10 @@ def count_cost_for_group(cluster_points, dist_matrix):
     cost = 0
     for point in cluster_points:
         cost += count_cost_for_one_point(point, cluster_points, dist_matrix)
-    if len(cluster_points) == 0:
+    if len(cluster_points) in {0, 1}:
         cost = 0
     else:
-        cost = cost/(cluster_points.shape[0] * (cluster_points.shape[0] - 1))
+        cost = cost/(cluster_points.shape[0] * (cluster_points.shape[0] - 1.0))
     return cost
 
 

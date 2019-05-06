@@ -50,7 +50,7 @@ def get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point):
     neighbourhood_indices = np.argwhere(
         (is_other_cluster == 1) & (dist_from_point < neighbourhood_radius)).reshape(-1)
     # print(neighbourhood_indices)
-    neighbourhood_indices = np.unique(neighbourhood_indices)
+    # neighbourhood_indices = np.unique(neighbourhood_indices)
     # print(neighbourhood_indices)
     random.shuffle(neighbourhood_indices)
     return neighbourhood_indices
@@ -63,6 +63,7 @@ def run_algorithm_steepest(clusters, dist_matrix, neighbourhood_radius, addition
         changes = 0
         for point in range(dist_matrix.shape[0]):
             neighbourhood_indices = get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point)
+            # print("Steepest,", len(neighbourhood_indices))
 
             best_neighbour = None
             best_cost = cost
@@ -88,7 +89,7 @@ def run_algorithm_greedy(clusters, dist_matrix, neighbourhood_radius, additional
         changes = 0
         for point in range(dist_matrix.shape[0]):
             neighbourhood_indices = get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point)
-
+            # print("Greedy,", len(neighbourhood_indices))
             for neighbour in neighbourhood_indices:
                 cost_after_change = new_cost(clusters, dist_matrix, cost, point, clusters[point], clusters[neighbour])
                 if cost[0] > cost_after_change[0]:

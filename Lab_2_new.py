@@ -1,6 +1,6 @@
 import time
 
-from Algorithms.new_algorithms import run_algorithm_greedy, run_algorithm_steepest, random_groups, cost_function, run_algorithm
+from Algorithms.new_algorithms import run_algorithm_greedy, run_algorithm_steepest, random_groups, cost_function
 from Utilities.DataPreprocess import parse_data, create_dist_function
 from Utilities.Plot import draw_scatter
 
@@ -20,7 +20,7 @@ def time_measure(func, args_for_func):
     return end - start
 
 
-def run_measurements(data, dist_matrix, neighbourhood, steps_for_time_measurements=50, option="prim"):
+def run_measurements(data, dist_matrix, neighbourhood_radius, steps_for_time_measurements=50, option="prim"):
     greedy_times_measurements = []
     steepest_times_measurements = []
     greedy_measurements = []
@@ -32,11 +32,11 @@ def run_measurements(data, dist_matrix, neighbourhood, steps_for_time_measuremen
         clusters = np.ones(len(data), dtype=np.int32) * (-1)
         clusters = random_groups(data.shape[0])
         greedy_clusters = np.copy(clusters)
-        measurement = time_measure(run_algorithm, (greedy_clusters, dist, "greedy"))
+        measurement = time_measure(run_algorithm_greedy, (greedy_clusters, dist, neighbourhood_radius))
         greedy_times_measurements.append(measurement)
         greedy_measurements.append(cost_function(dist_matrix, greedy_clusters)[0])
 
-        measurement = time_measure(run_algorithm, (clusters, dist, "steepest"))
+        measurement = time_measure(run_algorithm_steepest, (clusters, dist, neighbourhood_radius))
         steepest_times_measurements.append(measurement)
         steepest_measurements.append(cost_function(dist_matrix, clusters)[0])
 

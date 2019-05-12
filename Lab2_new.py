@@ -1,6 +1,6 @@
 import time
 
-from Algorithms.new_algorithms import run_algorithm_greedy, run_algorithm_steepest, random_groups, cost_function
+from Algorithms.lab2_new import run_algorithm_greedy, run_algorithm_steepest, random_groups, cost_function
 from Utilities.DataPreprocess import parse_data, create_dist_function, create_clusters_from_tree
 from Utilities.Plot import draw_scatter
 from Lab1 import create_n_trees_kruskal, create_n_trees_prim

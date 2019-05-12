@@ -52,11 +52,10 @@ def run():
     neighbourhood = 50  #radius of neighbourhood
     data = parse_data("data/objects20_06.data")
     dist_matrix = create_dist_function(data, lambda x1, x2: np.linalg.norm(x1 - x2))
-    run_measurements(data, dist_matrix, neighbourhood, 100, method="none")
-    run_measurements(data, dist_matrix, neighbourhood, 100, method="cache")
-    run_measurements(data, dist_matrix, neighbourhood, 100, method="candidates")
-    run_measurements(data, dist_matrix, neighbourhood, 100, method="candidates_with_cache")
-
+    run_measurements(data, dist_matrix, neighbourhood, 1, method="none")
+    run_measurements(data, dist_matrix, neighbourhood, 1, method="cache")
+    run_measurements(data, dist_matrix, neighbourhood, 1, method="candidates")
+    run_measurements(data, dist_matrix, neighbourhood, 1, method="candidates_with_cache")
 
 
 if "__main__" == __name__:

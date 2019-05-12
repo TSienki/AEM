@@ -84,7 +84,7 @@ def run_measurements(data, dist_matrix, neighbourhood_radius, steps_for_time_mea
 
 
 def run():
-    neighbourhood = 50  #radius of neighbourhood
+    neighbourhood = 50  # radius of neighbourhood
     data = parse_data("data/objects20_06.data")
     dist_matrix = create_dist_function(data, lambda x1, x2: np.linalg.norm(x1 - x2))
     print("Prim")

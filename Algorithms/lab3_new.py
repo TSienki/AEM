@@ -113,7 +113,6 @@ def find_candidates(reference_point, current_point, potential_candidates, dist_m
         candidate_distance = dist_matrix[reference_point, candidate]
         if candidate_distance < boundary_distance:
             candidates.append((candidate, candidate_distance))
-
     # Sorting by increasing distance from reference point
     for i in range(0, len(candidates)):
         for j in range(0, len(candidates) - i - 1):

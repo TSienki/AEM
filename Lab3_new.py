@@ -22,7 +22,7 @@ def time_measure(func, args_for_func):
 
 
 def run_measurements(data, dist_matrix, neighbourhood_radius, steps_for_time_measurements=50,
-                     option="prim", method="none"):
+                     option="prim", candidates = False, cache=False):
     steepest_times_measurements = []
     steepest_measurements = []
     dist = np.copy(dist_matrix)
@@ -47,7 +47,7 @@ def run_measurements(data, dist_matrix, neighbourhood_radius, steps_for_time_mea
         steepest_clusters = np.copy(clusters)
         steepest_clusters_with_candidates = np.copy(clusters)
 
-        measurement = time_measure(run_algorithm_steepest, (steepest_clusters, dist, neighbourhood_radius, method))
+        measurement = time_measure(run_algorithm_steepest, (steepest_clusters, dist, neighbourhood_radius, candidates, cache))
         steepest_times_measurements.append(measurement)
         steepest_cost = cost_function(dist_matrix, steepest_clusters)[0]
         steepest_measurements.append(steepest_cost)
@@ -65,7 +65,7 @@ def run_measurements(data, dist_matrix, neighbourhood_radius, steps_for_time_mea
 
 
 def run():
-    neighbourhood = 50  #radius of neighbourhood
+    neighbourhood = 50  # radius of neighbourhood
     data = parse_data("data/objects20_06.data")
     dist_matrix = create_dist_function(data, lambda x1, x2: np.linalg.norm(x1 - x2))
     # print("Prim")
@@ -73,8 +73,8 @@ def run():
     # print("Kruskal")
     # run_measurements(data, dist_matrix, neighbourhood, 1, "kruskal")
     print("Random")
-    run_measurements(data, dist_matrix, neighbourhood, 1, "random", "candidates")
-    run_measurements(data, dist_matrix, neighbourhood, 1, "random")
+    # run_measurements(data, dist_matrix, neighbourhood, 1, "random")
+    run_measurements(data, dist_matrix, neighbourhood, 1, "random", True, False)
 
 
 if "__main__" == __name__:

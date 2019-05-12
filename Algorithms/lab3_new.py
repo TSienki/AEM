@@ -10,17 +10,29 @@ def cost_function(distance_matrix, groups):
     return sum_ / pairs, sum_, pairs
 
 
-def new_cost(clusters, distance_matrix, prev_cost, point, point_group, neighbour_group):
+def new_cost(clusters, distance_matrix, prev_cost, point, point_group, neighbour_group, cached_gain=None):
     group = np.argwhere(clusters == point_group)
     new_group = np.argwhere(clusters == neighbour_group)
 
-    distance_loss = np.sum(distance_matrix[group, point])
-    distance_gain = np.sum(distance_matrix[new_group, point])
     old_pairs = len(group) - 1
     new_pairs = len(new_group)
-    sum_ = prev_cost[1] + distance_gain - distance_loss
+
+    if cached_gain is not None:
+        sum_ = prev_cost[1] - cached_gain
+    else:
+        distance_loss = np.sum(distance_matrix[group, point])
+        distance_gain = np.sum(distance_matrix[new_group, point])
+        sum_ = prev_cost[1] + distance_gain - distance_loss
     pairs = prev_cost[2] + new_pairs - old_pairs
     return sum_ / pairs, sum_, pairs
+
+
+def count_group_gain(clusters, distance_matrix, point, point_group, neighbour_group):
+    group = np.argwhere(clusters == point_group)
+    new_group = np.argwhere(clusters == neighbour_group)
+    distance_loss = np.sum(distance_matrix[group, point])
+    distance_gain = np.sum(distance_matrix[new_group, point])
+    return distance_loss - distance_gain
 
 
 def random_groups(data_length, nclusters=20):
@@ -40,14 +52,14 @@ def random_groups(data_length, nclusters=20):
     return clusters
 
 
-def get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point, additional_method="none"):
+def get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point, candidates):
     cluster_indices = np.argwhere(clusters == clusters[point])
     is_other_cluster = np.ones(dist_matrix.shape[0])
     is_other_cluster[cluster_indices] = 0
     dist_from_point = dist_matrix[point].reshape(-1)
     neighbourhood_indices = np.argwhere(
         (is_other_cluster == 1) & (dist_from_point < neighbourhood_radius)).reshape(-1)
-    if additional_method in {"candidates", "candidates_with_cache"}:
+    if candidates:
         reference_point = np.random.choice([list(point_indices)[0] for point_indices in cluster_indices
                                             if point_indices not in neighbourhood_indices])
         neighbourhood_indices = find_candidates(reference_point, point, neighbourhood_indices, dist_matrix)
@@ -55,20 +67,32 @@ def get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point, additi
     return neighbourhood_indices
 
 
-def run_algorithm_steepest(clusters, dist_matrix, neighbourhood_radius, additional_method="none"):
+def run_algorithm_steepest(clusters, dist_matrix, neighbourhood_radius, candidates=False, cache=False):
     cost = cost_function(dist_matrix, clusters)
+    cachedict = {}
 
     for i in range(50):
         changes = 0
         for point in range(dist_matrix.shape[0]):
             neighbourhood_indices = get_neighbourhood(clusters, dist_matrix, neighbourhood_radius,
-                                                      point, additional_method)
+                                                      point, candidates)
             # print("Steepest,", len(neighbourhood_indices))
             best_neighbour = None
             best_cost = cost
-
             for neighbour in neighbourhood_indices:
-                cost_after_change = new_cost(clusters, dist_matrix, cost, point, clusters[point], clusters[neighbour])
+                cost_after_change = None
+                if cache:
+                    if (point, clusters[point], clusters[neighbour]) in cachedict:
+                        if cachedict[(point, clusters[point], clusters[neighbour])] < 0:
+                            continue
+                    else:
+                        cachedict[(point, clusters[point], clusters[neighbour])] = \
+                            count_group_gain(clusters, dist_matrix, point, clusters[point], clusters[neighbour])
+                    cost_after_change = new_cost(clusters, dist_matrix, cost, point, clusters[point],
+                                                 clusters[neighbour],
+                                                 cachedict[(point, clusters[point], clusters[neighbour])])
+                else:
+                    cost_after_change = new_cost(clusters, dist_matrix, cost, point, clusters[point], clusters[neighbour])
                 if best_cost[0] > cost_after_change[0]:
                     if np.count_nonzero(clusters == clusters[point]) > 1:
                         best_cost = cost_after_change
@@ -78,24 +102,6 @@ def run_algorithm_steepest(clusters, dist_matrix, neighbourhood_radius, addition
                 clusters[point] = clusters[best_neighbour]
                 cost = best_cost
                 changes += 1
-        if changes == 0:
-            break
-
-
-def run_algorithm_greedy(clusters, dist_matrix, neighbourhood_radius, additional_method="none"):
-    cost = cost_function(dist_matrix, clusters)
-    for i in range(50):
-        changes = 0
-        for point in range(dist_matrix.shape[0]):
-            neighbourhood_indices = get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point)
-            # print("Greedy,", len(neighbourhood_indices))
-            for neighbour in neighbourhood_indices:
-                cost_after_change = new_cost(clusters, dist_matrix, cost, point, clusters[point], clusters[neighbour])
-                if cost[0] > cost_after_change[0]:
-                    clusters[point] = clusters[neighbour]
-                    cost = cost_after_change
-                    changes += 1
-                    break
         if changes == 0:
             break
 
@@ -115,4 +121,4 @@ def find_candidates(reference_point, current_point, potential_candidates, dist_m
                 temp = candidates[j]
                 candidates[j] = candidates[j + 1]
                 candidates[j + 1] = temp
-    return [[x[0]] for x in candidates[0:7]]
+    return [x[0] for x in candidates[0:7]]

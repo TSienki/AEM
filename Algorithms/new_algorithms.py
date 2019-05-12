@@ -41,6 +41,7 @@ def random_groups(data_length, nclusters=20):
         i += 1
     return clusters
 
+
 def get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point):
     cluster_indices = np.argwhere(clusters == clusters[point])
     is_other_cluster = np.ones(dist_matrix.shape[0])
@@ -64,15 +65,15 @@ def run_algorithm_steepest(clusters, dist_matrix, neighbourhood_radius, addition
         for point in range(dist_matrix.shape[0]):
             neighbourhood_indices = get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point)
             # print("Steepest,", len(neighbourhood_indices))
-
             best_neighbour = None
             best_cost = cost
 
             for neighbour in neighbourhood_indices:
                 cost_after_change = new_cost(clusters, dist_matrix, cost, point, clusters[point], clusters[neighbour])
                 if best_cost[0] > cost_after_change[0]:
-                    best_cost = cost_after_change
-                    best_neighbour = neighbour
+                    if np.count_nonzero(clusters == clusters[point]) > 1:
+                        best_cost = cost_after_change
+                        best_neighbour = neighbour
 
             if best_neighbour is not None:
                 clusters[point] = clusters[best_neighbour]

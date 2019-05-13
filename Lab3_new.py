@@ -146,7 +146,8 @@ def run():
 
     # print("Prim")
     # run_measurements(data, dist_matrix, neighbourhood, 1, "prim")
-    # print("Kruskal")
+    # print("Kruskal")e
+    
     # run_measurements(data, dist_matrix, neighbourhood, 1, "kruskal")
     print("Random")
     # run_measurements(data, dist_matrix, neighbourhood, 1, "random")

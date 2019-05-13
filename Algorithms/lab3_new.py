@@ -69,11 +69,11 @@ def get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point, candid
 
 def run_algorithm_steepest(clusters, dist_matrix, neighbourhood_radius, candidates=False, cache=False):
     cost = cost_function(dist_matrix, clusters)
-    cachedict = {}
 
     for i in range(50):
         changes = 0
         for point in range(dist_matrix.shape[0]):
+            cachedict = {}
             neighbourhood_indices = get_neighbourhood(clusters, dist_matrix, neighbourhood_radius,
                                                       point, candidates)
             # print("Steepest,", len(neighbourhood_indices))

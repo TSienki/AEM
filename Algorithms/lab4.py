@@ -1,5 +1,7 @@
 import random
 import numpy as np
+from Lab1 import create_n_trees_kruskal, create_n_trees_prim
+from Utilities.DataPreprocess import parse_data, create_dist_function, create_clusters_from_tree
 
 
 def cost_function(distance_matrix, groups):
@@ -69,11 +71,11 @@ def get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point, candid
 
 def run_algorithm_steepest(clusters, dist_matrix, neighbourhood_radius, candidates=False, cache=False):
     cost = cost_function(dist_matrix, clusters)
-    cachedict = {}
 
     for i in range(50):
         changes = 0
         for point in range(dist_matrix.shape[0]):
+            cachedict = {}
             neighbourhood_indices = get_neighbourhood(clusters, dist_matrix, neighbourhood_radius,
                                                       point, candidates)
             # print("Steepest,", len(neighbourhood_indices))
@@ -121,3 +123,35 @@ def find_candidates(reference_point, current_point, potential_candidates, dist_m
                 candidates[j] = candidates[j + 1]
                 candidates[j + 1] = temp
     return [x[0] for x in candidates[0:7]]
+
+
+def msls(dist_matrix, neighbourhood_radius, data, candidates=False, cache=False, option="random"):
+    np.random.seed(0)
+    best_clusters = None
+    best_cost = np.inf
+    cluster_before_best = None
+
+    for i in range(100):
+        # run_algorithm_steepest()
+
+        clusters = np.ones(len(data), dtype=np.int32) * (-1)
+
+        if option == "prim":
+            result = create_n_trees_prim(data, dist_matrix, 20, 1)
+            clusters = create_clusters_from_tree(data, result)
+        elif option == "kruskal":
+            result = create_n_trees_kruskal(data, dist_matrix, 20, 1)
+            clusters = create_clusters_from_tree(data, result)
+        elif option == "random":
+            clusters = random_groups(data.shape[0])
+
+        clusters_before = np.copy(clusters)
+
+        run_algorithm_steepest(clusters, dist_matrix, neighbourhood_radius, candidates, cache)
+        cost = cost_function(dist_matrix, clusters)[0]
+
+        if cost < best_cost:
+            best_cost = cost
+            best_clusters = clusters
+            cluster_before_best = clusters_before
+    return best_cost, best_clusters, cluster_before_best

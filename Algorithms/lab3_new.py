@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import operator
 
 
 def cost_function(distance_matrix, groups):
@@ -62,7 +63,8 @@ def get_neighbourhood(clusters, dist_matrix, neighbourhood_radius, point, candid
     if candidates:
         reference_point = np.random.choice([list(point_indices)[0] for point_indices in cluster_indices
                                             if point_indices not in neighbourhood_indices])
-        neighbourhood_indices = find_candidates(reference_point, point, neighbourhood_indices, dist_matrix)
+        # neighbourhood_indices = find_candidates(reference_point, point, neighbourhood_indices, dist_matrix)
+        neighbourhood_indices = find_candidates(clusters, reference_point, point, neighbourhood_indices, dist_matrix)
     random.shuffle(neighbourhood_indices)
     return neighbourhood_indices
 
@@ -106,18 +108,35 @@ def run_algorithm_steepest(clusters, dist_matrix, neighbourhood_radius, candidat
             break
 
 
-def find_candidates(reference_point, current_point, potential_candidates, dist_matrix):
-    boundary_distance = dist_matrix[reference_point, current_point]
-    candidates = []
-    for i, candidate in enumerate(potential_candidates):
-        candidate_distance = dist_matrix[reference_point, candidate]
-        if candidate_distance < boundary_distance:
-            candidates.append((candidate, candidate_distance))
-    # Sorting by increasing distance from reference point
-    for i in range(0, len(candidates)):
-        for j in range(0, len(candidates) - i - 1):
-            if candidates[j][1] > candidates[j + 1][1]:
-                temp = candidates[j]
-                candidates[j] = candidates[j + 1]
-                candidates[j + 1] = temp
-    return [x[0] for x in candidates[0:7]]
+def find_candidates(clusters, reference_point, current_point, potential_candidates, dist_matrix):
+    # boundary_distance = dist_matrix[reference_point, current_point]
+    # candidates = []
+    # for i, candidate in enumerate(potential_candidates):
+    #     candidate_distance = dist_matrix[reference_point, candidate]
+    #     if candidate_distance < boundary_distance:
+    #         candidates.append((candidate, candidate_distance))
+    # # Sorting by increasing distance from reference point
+    # for i in range(0, len(candidates)):
+    #     for j in range(0, len(candidates) - i - 1):
+    #         if candidates[j][1] > candidates[j + 1][1]:
+    #             temp = candidates[j]
+    #             candidates[j] = candidates[j + 1]
+    #             candidates[j + 1] = temp
+    # return [x[0] for x in candidates[0:7]]
+    candidates = {}
+    candidates_sum = {}
+    candidates_to_return = []
+    for candidate in potential_candidates:
+        if clusters[candidate] not in candidates:
+            candidates[clusters[candidate]] = candidate
+            candidates_sum[clusters[candidate]] = 1
+        else:
+            candidates_sum[clusters[candidate]] += 1
+
+    if len(candidates_sum) is not 0:
+        max_key = max(candidates_sum.items(), key=operator.itemgetter(1))[0]
+        candidates_to_return.append(candidates[max_key])
+    for key, value in candidates_sum.items():
+        if value > 3:
+            candidates_to_return.append(candidates[key])
+    return [candidates[x] for x in candidates]

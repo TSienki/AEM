@@ -125,7 +125,6 @@ def find_candidates(clusters, reference_point, current_point, potential_candidat
     # return [x[0] for x in candidates[0:7]]
     candidates = {}
     candidates_sum = {}
-    candidates_to_return = []
     for candidate in potential_candidates:
         if clusters[candidate] not in candidates:
             candidates[clusters[candidate]] = candidate
@@ -133,10 +132,14 @@ def find_candidates(clusters, reference_point, current_point, potential_candidat
         else:
             candidates_sum[clusters[candidate]] += 1
 
-    if len(candidates_sum) is not 0:
-        max_key = max(candidates_sum.items(), key=operator.itemgetter(1))[0]
-        candidates_to_return.append(candidates[max_key])
-    for key, value in candidates_sum.items():
-        if value > 3:
-            candidates_to_return.append(candidates[key])
-    return [candidates[x] for x in candidates]
+    sorted_candidates = sorted(candidates_sum.items(), key=operator.itemgetter(1))
+    amount = len(sorted_candidates) // 2
+    groups = [x[0] for x in sorted_candidates[-amount:]]
+
+    # if len(candidates_sum) is not 0:
+    #     max_key = max(candidates_sum.items(), key=operator.itemgetter(1))[0]
+    #     candidates_to_return.append(candidates[max_key])
+    # for key, value in candidates_sum.items():
+    #     if value > 2:
+    #         candidates_to_return.append(candidates[key])
+    return [candidates[x] for x in groups]

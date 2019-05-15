@@ -147,11 +147,11 @@ def run():
     # print("Prim")
     # run_measurements(data, dist_matrix, neighbourhood, 1, "prim")
     # print("Kruskal")e
-    
+
     # run_measurements(data, dist_matrix, neighbourhood, 1, "kruskal")
     print("Random")
     # run_measurements(data, dist_matrix, neighbourhood, 1, "random")
-    run_measurements(data, dist_matrix, neighbourhood, 100, "random")
+    run_measurements(data, dist_matrix, neighbourhood, 10, "random")
 
 
 if "__main__" == __name__:

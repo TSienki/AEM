@@ -5,6 +5,7 @@ from Utilities.DataPreprocess import parse_data, create_dist_function, create_cl
 import operator
 import time
 
+
 def cost_function(distance_matrix, groups):
     groups = [np.argwhere(groups == group_number).reshape(-1) for group_number in range(np.max(groups) + 1)]
     sum_ = np.sum([np.sum(distance_matrix[group, :][:, group]) / 2
@@ -147,11 +148,8 @@ def big_random_perturbation(clusters, percent_to_remove, dist_matrix):
         best_group = -1
         for i in range(np.max(clusters)):
             distance = 0
-            group_points = np.argwhere(clusters == i)
-            for p in group_points:
-                distance += dist_matrix[p, removed_point]
-            avg_distance = distance/len(group_points)
-
+            clusters[removed_point] = i
+            avg_distance = cost_function(dist_matrix, clusters)[0]
             if avg_distance < best_avg:
                 best_avg = avg_distance
                 best_group = i
@@ -160,12 +158,12 @@ def big_random_perturbation(clusters, percent_to_remove, dist_matrix):
 
 
 def msls(dist_matrix, neighbourhood_radius, data, candidates=False, cache=False, option="random"):
-    np.random.seed(0)
+
     best_clusters = None
     best_cost = np.inf
     cluster_before_best = None
 
-    for i in range(1):
+    for i in range(10):
         clusters = np.ones(len(data), dtype=np.int32) * (-1)
 
         if option == "prim":
@@ -189,11 +187,10 @@ def msls(dist_matrix, neighbourhood_radius, data, candidates=False, cache=False,
     return best_cost, best_clusters, cluster_before_best
 
 
-def ils(dist_matrix, neighbourhood_radius, data, time_limit, candidates=False, cache=False,
-        option="random", perturbation = "small"):
+def ils(dist_matrix, neighbourhood_radius, data, time_limit, candidates=False, cache=False, option="prim", perturbation = "small"):
     timeout = time_limit
     timeout_start = time.time()
-    np.random.seed(0)
+
     best_clusters = None
     best_cost = np.inf
     cluster_before_best = None
@@ -207,17 +204,17 @@ def ils(dist_matrix, neighbourhood_radius, data, time_limit, candidates=False, c
     elif option == "random":
         clusters = random_groups(data.shape[0])
     clusters_before = np.copy(clusters)
-
+    clusters_to_process = np.copy(clusters)
     while time.time() < timeout_start + timeout:
-        run_algorithm_steepest(clusters, dist_matrix, neighbourhood_radius, candidates, cache)
-        cost = cost_function(dist_matrix, clusters)[0]
+        if perturbation == "small":
+            clusters = small_perturbations(clusters_to_process, 20, 50, dist_matrix)
+        elif perturbation == "big":
+            clusters = big_random_perturbation(clusters_to_process, 30, dist_matrix)
+
+        run_algorithm_steepest(clusters_to_process, dist_matrix, neighbourhood_radius, candidates, cache)
+        cost = cost_function(dist_matrix, clusters_to_process)[0]
         if cost < best_cost:
             best_cost = cost
-            best_clusters = clusters
+            best_clusters = clusters_to_process
             cluster_before_best = clusters_before
-        print(cost)
-        if perturbation == "small":
-            clusters = small_perturbations(clusters, 20, 50, dist_matrix)
-        elif perturbation == "big":
-            clusters = big_random_perturbation(clusters, 30, dist_matrix)
     return best_cost, best_clusters, cluster_before_best

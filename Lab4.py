@@ -22,7 +22,7 @@ def time_measure(func, args_for_func):
 
 
 def run_measurements_msls(data, dist_matrix, neighbourhood_radius, steps_for_time_measurements=1,  option="random",
-                          neighbourhood=50, candidates=False, cache=False):
+                          neighbourhood=50, candidates=False, cache=True):
     msls_times_measurements = []
     msls_measurements = []
     dist = np.copy(dist_matrix)
@@ -39,7 +39,7 @@ def run_measurements_msls(data, dist_matrix, neighbourhood_radius, steps_for_tim
         msls_times_measurements.append(time_measurement)
         msls_measurements.append(cost)
 
-        ils_time_limit = sum(msls_measurements) / len(msls_measurements)
+        ils_time_limit = sum(msls_times_measurements) / len(msls_measurements)
 
         ils_time_measurement, ret = \
             time_measure(ils, (dist, neighbourhood, data, ils_time_limit, candidates, cache, option, "big"))
@@ -61,13 +61,8 @@ def run():
     neighbourhood = 50  # radius of neighbourhood
     data = parse_data("data/objects20_06.data")
     dist_matrix = create_dist_function(data, lambda x1, x2: np.linalg.norm(x1 - x2))
-    # print("Prim")
-    # run_measurements(data, dist_matrix, neighbourhood, 1, "prim")
-    # print("Kruskal")
-    # run_measurements(data, dist_matrix, neighbourhood, 1, "kruskal")
     print("Random")
-    # run_measurements(data, dist_matrix, neighbourhood, 1, "random")
-    run_measurements_msls(data, dist_matrix, neighbourhood, 1, "random")
+    run_measurements_msls(data, dist_matrix, neighbourhood, 2, "random")
 
 
 if "__main__" == __name__:

@@ -163,7 +163,8 @@ def msls(dist_matrix, neighbourhood_radius, data, candidates=False, cache=False,
     best_cost = np.inf
     cluster_before_best = None
 
-    for i in range(10):
+    for i in range(100):
+        print(f"Wywołanie MSLS numer {i}")
         clusters = np.ones(len(data), dtype=np.int32) * (-1)
 
         if option == "prim":
